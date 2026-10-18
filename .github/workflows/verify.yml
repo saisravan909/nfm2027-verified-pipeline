@@ -1,0 +1,23 @@
+name: NFM2027 Pipeline Verification
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  verify-csp:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Environment
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+          
+      - name: Run Model Checking Suite
+        run: |
+          chmod +x scripts/run_verification.sh
+          ./scripts/run_verification.sh
