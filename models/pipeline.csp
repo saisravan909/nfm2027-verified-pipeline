@@ -1,0 +1,62 @@
+-- =====================================================================
+-- NFM 2027: Formally Verified Software Supply Chain Pipeline
+-- Communicating Sequential Processes (CSP) Model for FDR4
+-- =====================================================================
+
+datatype Source = SRC_V1 | SRC_UNSAFE
+datatype Result = PASS | FAIL
+datatype Binary = BIN_V1 | BIN_MALICIOUS
+datatype Provenance = PROV_VALID | PROV_FAKE
+datatype Signature = SIG_VALID | SIG_INVALID
+
+channel checkout: Source
+channel analyze: Source.Result
+channel compile: Source.Binary
+channel attest: Source.Binary.Provenance
+channel sign: Source.Binary.Signature
+channel deploy: Source.Binary
+
+P_Src = checkout!SRC_V1 -> P_Src
+
+P_Static = 
+    checkout?s -> 
+        if s == SRC_V1 
+        then analyze!s.PASS -> P_Static 
+        else analyze!s.FAIL -> P_Static
+
+P_Build = 
+    checkout?s -> analyze?s'.r ->
+        if (s == s' and r == PASS)
+        then compile!BIN_V1 -> P_Build
+        else P_Build
+
+P_Attest = 
+    compile?b -> 
+        if b == BIN_V1
+        then attest!b.PROV_VALID -> P_Attest
+        else attest!b.PROV_FAKE -> P_Attest
+
+P_Signer = 
+    attest?b?p ->
+        if p == PROV_VALID
+        then sign!b.SIG_VALID -> P_Signer
+        else P_Signer
+
+P_Flight = 
+    sign?b?sig ->
+        if sig == SIG_VALID
+        then deploy!b -> P_Flight
+        else P_Flight
+
+Alpha_Src = {checkout.SRC_V1, checkout.SRC_UNSAFE}
+Alpha_Static = {checkout.SRC_V1, checkout.SRC_UNSAFE, analyze.SRC_V1.PASS, analyze.SRC_V1.FAIL, analyze.SRC_UNSAFE.PASS, analyze.SRC_UNSAFE.FAIL}
+Alpha_Build = {checkout.SRC_V1, checkout.SRC_UNSAFE, analyze.SRC_V1.PASS, analyze.SRC_V1.FAIL, analyze.SRC_UNSAFE.PASS, analyze.SRC_UNSAFE.FAIL, compile.BIN_V1, compile.BIN_MALICIOUS}
+Alpha_Attest = {compile.BIN_V1, compile.BIN_MALICIOUS, attest.BIN_V1.PROV_VALID, attest.BIN_V1.PROV_FAKE, attest.BIN_MALICIOUS.PROV_VALID, attest.BIN_MALICIOUS.PROV_FAKE}
+Alpha_Signer = {attest.BIN_V1.PROV_VALID, attest.BIN_V1.PROV_FAKE, attest.BIN_MALICIOUS.PROV_VALID, attest.BIN_MALICIOUS.PROV_FAKE, sign.BIN_V1.SIG_VALID, sign.BIN_V1.SIG_INVALID, sign.BIN_MALICIOUS.SIG_VALID, sign.BIN_MALICIOUS.SIG_INVALID}
+Alpha_Flight = {sign.BIN_V1.SIG_VALID, sign.BIN_V1.SIG_INVALID, sign.BIN_MALICIOUS.SIG_VALID, sign.BIN_MALICIOUS.SIG_INVALID, deploy.BIN_V1, deploy.BIN_MALICIOUS}
+
+System = 
+    (((P_Src [| Alpha_Src |] P_Static) [| Alpha_Static |] P_Build) 
+      [| Alpha_Build |] P_Attest) 
+      [| Alpha_Attest |] P_Signer
+      [| Alpha_Signer |] P_Flight
