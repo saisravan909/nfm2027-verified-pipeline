@@ -1,0 +1,7 @@
+include "pipeline.csp"
+
+assert STOP [T= System
+assert System :[deadlock free]
+
+NAMED_SPEC = deploy.BIN_MALICIOUS -> STOP
+assert NAMED_SPEC [T= System
