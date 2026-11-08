@@ -3,7 +3,7 @@
 [![CI Verification Pipeline](https://github.com/saisravan909/nfm2027-verified-pipeline/actions/workflows/verify.yml/badge.svg)](https://github.com/saisravan909/nfm2027-verified-pipeline/actions/workflows/verify.yml)
 [![Python Version](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://www.python.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Artifact Release](https://img.shields.io/badge/release-v1.0.0-success.svg)](https://github.com/saisravan909/nfm2027-verified-pipeline/releases/tag/v1.0.0)[cite: 1]
+[![Artifact Release](https://img.shields.io/badge/release-v1.0.0-success.svg)](https://github.com/saisravan909/nfm2027-verified-pipeline/releases/tag/v1.0.0)
 
 This repository contains the complete formal modeling and verification artifact accompanying our submission to NASA Formal Methods (NFM) 2027: **"Formally Verified Software Supply Chain Pipelines for Autonomous Aerospace Systems: A Process Calculus Approach to Non-Bypassable Provenance"**.
 
